@@ -151,11 +151,91 @@ public class Job {
 //
 //All of the Person tests are in PersonTests.swift, if you want to see what's tested.
 public class Person {
+    var firstName: String
+    var lastName: String
+    var age: Int
+    private var _job: Job?
+    private var _spouse: Person?
+    
+    var job: Job? {
+            get { return _job }
+            set {
+                if age >= 16 {
+                    _job = newValue
+                } else {
+                    _job = nil
+                    print("Person must be at least 16 years old to have a job.")
+                }
+            }
+        }
+
+    var spouse: Person? {
+        get { return _spouse }
+        set {
+            if age >= 21 {
+                _spouse = newValue
+            } else {
+                _spouse = nil
+                print("Person must be at least 21 years old to have a spouse.")
+            }
+        }
+    }
+//
+//    init(firstName: String, lastName: String, age: Int, job: Job? = nil, spouse: Person? = nil) {
+//        self.firstName = firstName
+//        self.lastName = lastName
+//        self.age = age
+//        self.job = job
+//        self.spouse = spouse
+//    }
+    init(firstName: String, lastName: String, age: Int, job: Job? = nil, spouse: Person? = nil) {
+            self.firstName = firstName
+            self.lastName = lastName
+            self.age = age
+            self._job = nil
+            self._spouse = nil
+            self.job = job
+            self.spouse = spouse
+        }
+    
+    func toString() -> String {
+        return "[Person: firstName:\(firstName) lastName:\(lastName) age:\(age) job:\(String(describing: job)) spouse:\(String(describing: spouse))]"
+    }
     
 }
 
 ////////////////////////////////////
 // Family
+//Finally, a family is a group of people, some of whom have jobs, some don't, but whose total income is what's taxed come April 1. Create a class called Family that has one property, `members`, which is a collection of Persons. US law dictates that a family consists of two Persons at a minimum (spouse1 and spouse2), so create an initializer that takes two Person parameters (called `spouse1` and `spouse2` to avoid genderfying parameter names). However, US law also frowns on being married more than once at the same time, so make sure your two parameters each have no spouse, and set their respective `spouse` fields to each other.
 //
+//Next, flesh out the `haveChild` method, which takes a Person parameter to add to the family. However, US law also frowns on minors having children, so let's make sure that at least one Person of the two spouses is over the age of 21. If the Family cannot have a child, then this method should return `false`; this method should return `true` only if the child can be successfully added to the Family.
+//
+//Finally, the `householdIncome` method will calculate the complete income for the Family.
+//
+//All of the Family tests are in PersonTests.swift, if you want to see what's tested.
+
 public class Family {
+    var familyMembers: [Person]
+    init(spouse1: Person, spouse2: Person) {
+        if (spouse1.spouse != nil && spouse2.spouse != nil){familyMembers = []}
+        spouse1.spouse = spouse2
+        spouse2.spouse = spouse1
+        familyMembers = [spouse1, spouse2]
+    }
+    
+    func householdIncome() -> Int{
+        var totalIncome = 0
+        for person in familyMembers{
+            if let job = person.job{
+                totalIncome += job.calculateIncome(2000)
+            }
+        }
+        return totalIncome
+        
+    }
+    
+    func haveChild(_ child: Person) -> Bool {
+        return familyMembers.contains(where: {$0.age > 21}) ? (familyMembers.append(child), true).1 : false
+    }
+    
 }
